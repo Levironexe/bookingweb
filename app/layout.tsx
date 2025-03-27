@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Raleway, Pinyon_Script} from "next/font/google";
 import "./globals.css";
+import 'flatpickr/dist/flatpickr.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

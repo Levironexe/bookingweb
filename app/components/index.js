@@ -1,7 +1,7 @@
 import Navbar from './navbar'
-import Hero from './hero'
+import Booking from './booking'
 
 export {
     Navbar,
-    Hero
+    Booking
 }

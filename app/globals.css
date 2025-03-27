@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import 'flatpickr/dist/flatpickr.css';
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -30,4 +30,24 @@ body {
 }
 .font-pinyon {
   font-family: var(--font-pinyon-script);
+}
+input-placeholderinput.custom-placeholder::placeholder {
+  color: black;
+  opacity: 1;
+}
+
+/* Vendor prefixes for broader browser support */
+input.custom-placeholder::-webkit-input-placeholder {
+  color: black;
+  opacity: 1;
+}
+
+input.custom-placeholder::-moz-placeholder {
+  color: black;
+  opacity: 1;
+}
+
+input.custom-placeholder:-ms-input-placeholder {
+  color: black;
+  opacity: 1;
 }
