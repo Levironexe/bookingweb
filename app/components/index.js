@@ -1,7 +1,7 @@
 import Navbar from './navbar'
-import Hero from './hero'
+import ContactForm from './drop-us-a-line'
 
 export {
     Navbar,
-    Hero
+    ContactForm
 }

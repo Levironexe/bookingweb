@@ -5,12 +5,13 @@ import { Phone } from 'lucide-react'
 
 const navbar = () => {
   return (
-    <div className='w-full bg-white absolute z-10'>
-    <div className='container mx-auto flex flex-col sm:flex-row justify-between items-center py-4'>            
+    <div className='w-full bg-black border-b border-b-zinc-800 z-20'>
+    <div className='container flex flex-col sm:flex-row justify-between items-center py-4 mx-auto px-4 sm:px-6 lg:px-8'>            
         <div className='text-5xl bg-gradient-to-r from-orange-700 to-orange-500 bg-clip-text text-transparent font-pinyon'>Heirloom & Vines</div>
             <div className='flex items-center gap-12'>
-                <Link href="/" className='text-[20px] text-black/80 hover:text-black  transition-all duration-200 hover:scale-110'>Home</Link>
-                <Link href="tel:0798896946" target="_blank" className='text-[20px] text-white flex items-center gap-4 bg-gradient-to-r from-orange-600 to-orange-400 py-2 px-4 hover:from-orange-700 hover:to-orange-500 rounded-xl transition-colors duration-300'><span><Phone/></span>07988.96.946</Link>
+                <Link href="/" className='text-[20px] text-white/80 hover:text-white  transition-all duration-200 hover:scale-110'>Home</Link>
+                <Link href="/" className='text-[20px] text-white/80 hover:text-white  transition-all duration-200 hover:scale-110'>Our Menu</Link>
+                
             </div>
         </div>
     </div>
