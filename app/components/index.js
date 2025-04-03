@@ -1,7 +1,7 @@
 import Navbar from './navbar'
-import Booking from './booking'
+import ContactForm from './drop-us-a-line'
 
 export {
     Navbar,
-    Booking
+    ContactForm
 }
