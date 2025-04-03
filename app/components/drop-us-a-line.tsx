@@ -13,7 +13,7 @@ export default function ContactForm() {
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [emails, setEmails] = useState(''); // Added state for emails
-  const [note, setNote] = useState('');
+  const [notes, setNote] = useState('');
   const [numberGuest, setGuest] = useState('');
   const [errorName, setErrorName] = useState(false);
   const [errorPhone, setErrorPhone] = useState(false);
@@ -107,8 +107,8 @@ const handleSubmit = async (e) => {
     name,
     phonenumber: parseInt(phoneNumber, 10), // Convert to number
     emails,
-    booking_date: formatDate(startDate), // Format as YYYY-MM-DD
-    booking_time: formatTime(startTime), // Format as HH:mm:ss
+    start_date: formatDate(startDate), // Format as YYYY-MM-DD
+    start_time: formatTime(startTime), // Format as HH:mm:ss
     guests: parseInt(numberGuest, 10), // Convert to number
     ...addOnBooleans, // Spread the boolean fields
   };
