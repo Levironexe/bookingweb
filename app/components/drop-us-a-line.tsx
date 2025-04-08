@@ -9,10 +9,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { supabase } from "@/utils/supabase/client";
 
 export default function ContactForm() {
-  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [emails, setEmails] = useState('');
+  const [email, setEmail] = useState('');
   const [notes, setNote] = useState('');
   const [numberGuest, setGuest] = useState('');
   const [errorName, setErrorName] = useState(false);
@@ -20,22 +19,25 @@ export default function ContactForm() {
   const [errorGuest, setErrorGuest] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [startTime, setStartTime] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null); 
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [locations, setLocations] = useState([]); 
+  const [locations, setLocations] = useState([]);
+
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch locations
+      // Fetch only active locations
       const { data: locationData, error: locationError } = await supabase
         .from('locations')
-        .select('*');
+        .select('*')
+        .eq('isactive', true); // Only fetch active locations
 
       if (locationError) {
         console.error('Error fetching locations:', locationError);
       } else if (locationData && locationData.length > 0) {
         setLocations(locationData);
-        setSelectedLocation(locationData[0]); 
+        setSelectedLocation(locationData[0]);
       }
     };
 
@@ -43,10 +45,10 @@ export default function ContactForm() {
   }, []);
 
   const handleClick_location = async () => {
-    console.log("Clicked location button");
     const { data, error } = await supabase
       .from('locations')
-      .select('*');
+      .select('*')
+      .eq('isactive', true); // Only fetch active locations
 
     if (error) {
       console.error('Error fetching locations:', error);
@@ -58,7 +60,7 @@ export default function ContactForm() {
   };
 
   const handleSelectLocation = (location) => {
-    setSelectedLocation(location); 
+    setSelectedLocation(location);
     setIsModalOpen(false);
   };
 
@@ -98,44 +100,41 @@ export default function ContactForm() {
     return `${hours}:${minutes}:00`;
   };
 
-  const mapAddOnsToBooleans = (addOns) => ({
-    birthday_party: addOns.includes("Birthday Party"),
-    anniversary: addOns.includes("Anniversary"),
-    first_date: addOns.includes("First Date"),
-    promotion_celebration: addOns.includes("Promotion Celebration"),
-    reunion: addOns.includes("Reunion"),
-    good_view: addOns.includes("Good view"),
-  });
-
   const handleForm = async (e) => {
     e.preventDefault();
     if (!validateUserInput()) return;
 
-    const addOnBooleans = mapAddOnsToBooleans(selectedAddOns);
     const reservationData = {
       name,
-      phonenumber: parseInt(phoneNumber, 10),
-      emails,
-      start_date: formatDate(startDate),
-      start_time: formatTime(startTime),
+      phoneNumber: parseInt(phoneNumber, 10),
+      email,
+      startDate: formatDate(startDate),
+      startTime: formatTime(startTime),
       guests: parseInt(numberGuest, 10),
-      location_name: selectedLocation?.name, 
-      location_address: selectedLocation?.location, 
+      locationName: selectedLocation?.name,
+      locationAddress: selectedLocation?.address, // Use 'address' instead of 'location'
       notes,
-      ...addOnBooleans,
+      options: selectedAddOns,
     };
 
     try {
-      const { data, error } = await supabase.from("reservations").insert([reservationData]).select();
+      const { data, error } = await supabase.from("reservationlist").insert([reservationData]).select();
       if (error) throw error;
       alert("Reservation submitted successfully!");
-      setName(''); setPhoneNumber(''); setEmails(''); setGuest('');
-      setStartDate(null); setStartTime(null); setSelectedAddOns([]);
+      setName('');
+      setPhoneNumber('');
+      setEmail('');
+      setGuest('');
+      setStartDate(null);
+      setStartTime(null);
+      setSelectedAddOns([]);
     } catch (err) {
       console.error("Error submitting reservation:", err);
       alert(`Failed to submit reservation: ${err.message || "Unknown error"}`);
     }
   };
+
+  console.log("Selected Add-Ons:", selectedAddOns);
 
   return (
     <div className="h-auto bg-black text-white p-4 sm:p-6 md:p-10">
@@ -164,19 +163,10 @@ export default function ContactForm() {
                     <div>
                       <h4 className="text-lg font-semibold">{selectedLocation.name}</h4>
                       <p className="text-gray-300 mt-1">
-                        <span className="font-medium">Address:</span> {selectedLocation.location}
+                        <span className="font-medium">Address:</span> {selectedLocation.address}
                       </p>
                       <p className="text-gray-300 mt-1">
-                        <span className="font-medium">Seating Capacity:</span> {selectedLocation.seating_capacity}
-                      </p>
-                      <p className="text-gray-300 mt-1">
-                        <span className="font-medium">Operating Hours:</span> {selectedLocation.operating_hours}
-                      </p>
-                      <p className="text-gray-300 mt-1">
-                        <span className="font-medium">Description:</span> {selectedLocation.description}
-                      </p>
-                      <p className="text-gray-300 mt-1">
-                        <span className="font-medium">GPS:</span> {selectedLocation.gps}
+                        <span className="font-medium">City:</span> {selectedLocation.city}
                       </p>
                     </div>
                   ) : (
@@ -252,7 +242,7 @@ export default function ContactForm() {
                   <input
                     placeholder="Your phone number"
                     value={phoneNumber}
-                    className={`mt-2 max-w-3/4 bg-zinc-900 rounded-lg p-3 sm:p-4 border ${errorPhone ? "border-red-500" : "border-zinc-800"} focus:outline-none focus:border-orange-500`}
+                    className={`mt-2 w-3/4 bg-zinc-900 rounded-lg p-3 sm:p-4 border ${errorPhone ? "border-red-500" : "border-zinc-800"} focus:outline-none focus:border-orange-500`}
                     onChange={(e) => {
                       setPhoneNumber(e.target.value);
                       if (e.target.value) setErrorPhone(false);
@@ -264,9 +254,9 @@ export default function ContactForm() {
                   <p>Emails:</p>
                   <input
                     placeholder="Your email"
-                    value={emails}
-                    className={`mt-2 w-8/10 bg-zinc-900 rounded-lg p-3 sm:p-4 border border-zinc-800 focus:outline-none focus:border-orange-500`}
-                    onChange={(e) => setEmails(e.target.value)}
+                    value={email}
+                    className={`mt-2 w-3/4 bg-zinc-900 rounded-lg p-3 sm:p-4 border border-zinc-800 focus:outline-none focus:border-orange-500`}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
               </div>
@@ -320,8 +310,14 @@ export default function ContactForm() {
 
       {isModalOpen && (
         <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-zinc-900 p-6 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+          <div className="bg-zinc-900 p-6 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto relative">
             <h2 className="text-xl font-bold mb-4 text-white">Select a Location</h2>
+            <button
+              onClick={closeModal}
+              className="absolute right-[10px] top-[5px] text-gray-400 hover:text-orange-500 transition-colors text-[20px] duration-10 transform ease-in-out hover:rotate-25"
+            >
+              X
+            </button>
             {locations.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {locations.map((location) => (
@@ -332,19 +328,10 @@ export default function ContactForm() {
                   >
                     <h4 className="text-lg font-semibold">{location.name}</h4>
                     <p className="text-gray-300 mt-1">
-                      <span className="font-medium">Address:</span> {location.location}
+                      <span className="font-medium">Address:</span> {location.address}
                     </p>
                     <p className="text-gray-300 mt-1">
-                      <span className="font-medium">Seating Capacity:</span> {location.seating_capacity}
-                    </p>
-                    <p className="text-gray-300 mt-1">
-                      <span className="font-medium">Operating Hours:</span> {location.operating_hours}
-                    </p>
-                    <p className="text-gray-300 mt-1">
-                      <span className="font-medium">Description:</span> {location.description}
-                    </p>
-                    <p className="text-gray-300 mt-1">
-                      <span className="font-medium">GPS:</span> {location.gps}
+                      <span className="font-medium">City:</span> {location.city}
                     </p>
                   </div>
                 ))}
@@ -352,12 +339,6 @@ export default function ContactForm() {
             ) : (
               <p className="text-gray-300">No locations found.</p>
             )}
-            <button
-              onClick={closeModal}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
